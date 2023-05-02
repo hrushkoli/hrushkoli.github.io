@@ -21,6 +21,10 @@ body {
     background-size: cover;
 }
 
+.navbar a{
+  color: $white !important;
+}
+
 .universe-hero{
   height:70vh;
   overflow: hidden;
@@ -234,4 +238,5 @@ body {
     }
   }
 
-@import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/scss/bootstrap.scss");
+@import "./node_modules/bootstrap/scss/bootstrap.scss";
+// @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/scss/bootstrap.scss");
