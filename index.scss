@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css1?family=Heebo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+$black : #000000;
+$dark : #121212;
+$icon-purp : rgba(246, 164, 255, 1);
+$content-color :  #54595F ;
+$heading-color : #7A7A7A;
+$dark-purp : rgba(151, 0, 151, 1);
+$white: #ffffff;
+
+body {
+    font-family: 'Poppins', sans-serif !important;
+    max-width:100vw;
+    width:100vw;
+    overflow-x:hidden;
+    background-image: url("./assets/images/content.png");
+    background-repeat: repeat-x;
+    background-size: cover;
+}
+
+.universe-hero{
+  height:70vh;
+  overflow: hidden;
+  max-width: 100vw;
+}
+
+
+.hero-heading-new{
+  // font-size: 100px;
+  font-weight: 700 !important;
+}
+.hero-subheading-new{
+  font-weight: 500 !important;
+}
+
+
+
+
+.sec_header {
+    // transform: rotateY(80deg);
+    position: absolute;
+    z-index: 0;
+    top:40%
+  }
+  .universe {
+    z-index: 1;
+    position: absolute;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    top:-100px;
+    left:200px;
+    width: 100%;
+    height: 100%;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .galaxy {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform: rotateX(75deg) rotateY(-25deg);
+    transform-style: preserve-3d;
+  }
+  
+  .galaxy-2 {
+    position: absolute;
+    top:-400px;
+    // left:400px;
+    width: 100%;
+    height: 100%;
+    transform: rotateX(75deg) rotateY(25deg);
+    transform-style: preserve-3d;
+  }
+  
+  .planet {
+    position: absolute;
+    // left: 50%;
+    width: 1em;
+    height: 1em;
+    margin-top: -0.5em;
+    margin-left: -0.5em;
+    border-radius: 50%;
+    transform-style: preserve-3d;
+  }
+  
+  .pos {
+    position: absolute;
+    transform-style: preserve-3d;
+    animation-name: invert;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  
+  .planet {
+    background-color: rgba(32, 32, 32, 0.9);
+    background-repeat: no-repeat;
+    background-size: cover;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  
+  .orbit {
+    position: absolute;
+    // top: 50%;
+    left: 50%;
+    border: 4px dotted rgba(0, 0, 0, 0.9);
+    border-radius: 50%;
+    animation-name: orbit;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    transform-style: preserve-3d;
+  }
+  
+  /* Animations */
+  @keyframes orbit {
+    0% {
+      transform: rotateZ(0deg);
+    }
+    100% {
+      transform: rotateZ(-360deg);
+    }
+  }
+  
+  @keyframes invert {
+    0% {
+      transform: rotateX(-90deg) rotateY(360deg) rotateZ(0deg);
+    }
+    100% {
+      transform: rotateX(-90deg) rotateY(0deg) rotateZ(0deg);
+    }
+  }
+  
+  /* Orbit sizes */
+  #planet-1.orbit {
+    width: 14em;
+    height: 14em;
+    top: 100px;
+    left: 20%;
+  }
+  
+  #planet-2.orbit {
+    width: 14em;
+    height: 14em;
+    left: 20%;
+    top: 1400px;
+  }
+  
+  /* Planet starting positions */
+  #planet-1 .pos {
+    left: 50%;
+    top: -1px;
+  }
+  
+  #planet-2 .pos {
+    left: 50%;
+    top: -1px;
+  }
+  
+  /* Planet animation durations */
+  #planet-1.orbit,
+  #planet-1 .pos {
+    animation-duration: 12.89016s;
+  }
+  
+  #planet-2.orbit,
+  #planet-2 .pos {
+    animation-duration: 12.89016s;
+  }
+  
+  /* Planet sizes */
+  #planet-1 {
+    font-size: 4em;
+  }
+  
+  #planet-2 {
+    font-size: 4em;
+  }
+  
+  /* Planet shadow animations */
+  #planet-1 .planet {
+    animation-name: shadow-planet-1;
+    animation-duration: 12.89016s;
+  }
+  
+  #planet-2 .planet {
+    animation-name: shadow-planet-2;
+    animation-duration: 12.89016s;
+  }
+  
+  @keyframes shadow-planet-1 {
+    0% {
+      box-shadow: inset 0 0 20px $dark-purp; /* TOP */
+    }
+    25% {
+      box-shadow: inset 16px 0 8px $dark-purp; /* LEFT */
+    }
+    50% {
+      box-shadow: inset 40px -20px 16px $dark-purp; /* BOTTOM */
+    }
+    50.01% {
+      box-shadow: inset -40px -20px 16px $dark-purp; /* BOTTOM */
+    }
+    75% {
+      box-shadow: inset -16px 0 8px $dark-purp; /* RIGHT */
+    }
+    100% {
+      box-shadow: inset 0 0 20px $dark-purp; /* TOP */
+    }
+  }
+  
+  @keyframes shadow-planet-2 {
+    0% {
+      box-shadow: inset 0 0 20px $dark-purp; /* TOP */
+    }
+    25% {
+      box-shadow: inset 16px 0 8px $dark-purp; /* LEFT */
+    }
+    50% {
+      box-shadow: inset 40px -20px 16px $dark-purp; /* BOTTOM */
+    }
+    50.01% {
+      box-shadow: inset -40px -20px 16px $dark-purp; /* BOTTOM */
+    }
+    75% {
+      box-shadow: inset -16px 0 8px $dark-purp; /* RIGHT */
+    }
+    100% {
+      box-shadow: inset 0 0 20px $dark-purp; /* TOP */
+    }
+  }
+
+@import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/scss/bootstrap.scss");
