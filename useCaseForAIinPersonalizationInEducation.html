@@ -1,0 +1,139 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Use of AI in Personalization in Education</title>
+</head>
+
+<body style="overflow:hidden">
+
+    <div>Facial Recognition Test 2</div>
+    <button type="button" onclick="init()">Start</button>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+
+    <!-- Table for displaying test scores -->
+    <table id="score-table" border="1" style="margin-top: 20px; display:none;">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody id="score-body">
+            <tr id="science-row">
+                <td>Science</td>
+                <td id="science-score">N/A</td>
+            </tr>
+            <tr id="math-row">
+                <td>Math</td>
+                <td id="math-score">N/A</td>
+            </tr>
+            <tr id="english-row">
+                <td>English</td>
+                <td id="english-score">N/A</td>
+            </tr>
+            <tr id="geography-row">
+                <td>Geography</td>
+                <td id="geography-score">N/A</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        const URL = "./my_model/";
+
+        let model, webcam, maxPredictions;
+
+        // Predefined test scores for each subject by person
+        const testScores = {
+            "Hrishi": {
+                "Science": 85,
+                "Math": 90,
+                "English": 88,
+                "Geography": 82
+            },
+            "Nainesh": {
+                "Science": 80,
+                "Math": 92,
+                "English": 85,
+                "Geography": 89
+            },
+            "Jeel": {
+                "Science": 75,
+                "Math": 85,
+                "English": 90,
+                "Geography": 86
+            },
+            "Herry": {
+                "Science": 88,
+                "Math": 95,
+                "English": 89,
+                "Geography": 91
+            }
+        };
+
+        const recognizedNames = ["Hrishi", "Nainesh", "Jeel", "Herry"];
+
+        // Load the image model and setup the webcam
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            const flip = true; // whether to flip the webcam
+            webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+            await webcam.setup(); // request access to the webcam
+            await webcam.play();
+            window.requestAnimationFrame(loop);
+
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+        }
+
+        async function loop() {
+            webcam.update(); // update the webcam frame
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        // Run the webcam image through the image model and update the table with test scores
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+            let detectedClass = null;
+
+            // Find the class with the highest probability
+            let highestProbability = 0;
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability > highestProbability) {
+                    highestProbability = prediction[i].probability;
+                    detectedClass = prediction[i].className;
+                }
+            }
+
+            // If detected face is recognized, display corresponding scores
+            if (recognizedNames.includes(detectedClass)) {
+                updateTable(detectedClass);
+            } else {
+                // Hide table if the face is unrecognized
+                document.getElementById("score-table").style.display = "none";
+            }
+        }
+
+        // Update the table with test scores for the detected person
+        function updateTable(name) {
+            const personScores = testScores[name];
+
+            // Display the table and fill in the scores
+            document.getElementById("score-table").style.display = "table";
+            document.getElementById("science-score").innerHTML = "Science: " + personScores["Science"];
+            document.getElementById("math-score").innerHTML = "Math: " + personScores["Math"];
+            document.getElementById("english-score").innerHTML = "English: " + personScores["English"];
+            document.getElementById("geography-score").innerHTML = "Geography: " + personScores["Geography"];
+        }
+    </script>
+
+</body>
+</html>
