@@ -20,10 +20,10 @@
     <br/>
     <button type="button" class="btn-primary" onclick="init()">Start</button>
     <div id="webcam-container"></div>
-    <div id="label-container"></div>
+    <br/>
+    <br/>
+    <br/>
 
-
-    <!-- Table for displaying test scores -->
     <table id="score-table" border="1" class="bordered-table" style="margin-top: 20px; display:none;">
         <thead>
             <tr>
@@ -90,6 +90,7 @@
 
         // Load the image model and setup the webcam
         async function init() {
+            document.getElementById("startButton").style.display = "none";
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
 
