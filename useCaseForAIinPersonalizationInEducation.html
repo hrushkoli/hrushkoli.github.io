@@ -19,7 +19,7 @@
 
 
     <!-- Table for displaying test scores -->
-    <table id="score-table" border="1" style="margin-top: 20px; display:none;">
+    <table id="score-table" border="1" class="bordered-table" style="margin-top: 20px; display:none;">
         <thead>
             <tr>
                 <th>Subject</th>
@@ -136,10 +136,10 @@
             // Display the table and fill in the scores
             document.getElementById("score-table").style.display = "table";
             document.getElementById("welcome").innerHTML= "Welcome "+name+ "! Here are your test scores.";
-            document.getElementById("science-score").innerHTML = ": " + personScores["Science"];
-            document.getElementById("math-score").innerHTML = " " + personScores["Math"];
-            document.getElementById("english-score").innerHTML = ": " + personScores["English"];
-            document.getElementById("geography-score").innerHTML = "" + personScores["Geography"];
+            document.getElementById("science-score").innerHTML = personScores["Science"];
+            document.getElementById("math-score").innerHTML = personScores["Math"];
+            document.getElementById("english-score").innerHTML = personScores["English"];
+            document.getElementById("geography-score").innerHTML =personScores["Geography"];
         }
     </script>
 
