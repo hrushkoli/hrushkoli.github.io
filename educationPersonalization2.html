@@ -1,7 +1,5 @@
-
 <html>
 <head>
-    <!-- <link rel="icon" type="image/png" href="./src/assets/images/logo.png" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Use of AI in Personalization in Education</title>
 </head>
@@ -17,41 +15,26 @@
     <table id="score-table" border="1" style="margin-top: 20px; display:none;">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Science</th>
-                <th>Math</th>
-                <th>English</th>
-                <th>Geography</th>
+                <th>Subject</th>
+                <th>Score</th>
             </tr>
         </thead>
         <tbody id="score-body">
-            <tr id="hrishi-row">
-                <td>Hrishi</td>
-                <td id="hrishi-science">N/A</td>
-                <td id="hrishi-math">N/A</td>
-                <td id="hrishi-english">N/A</td>
-                <td id="hrishi-geography">N/A</td>
+            <tr id="science-row">
+                <td>Science</td>
+                <td id="science-score">N/A</td>
             </tr>
-            <tr id="nainesh-row">
-                <td>Nainesh</td>
-                <td id="nainesh-science">N/A</td>
-                <td id="nainesh-math">N/A</td>
-                <td id="nainesh-english">N/A</td>
-                <td id="nainesh-geography">N/A</td>
+            <tr id="math-row">
+                <td>Math</td>
+                <td id="math-score">N/A</td>
             </tr>
-            <tr id="jeel-row">
-                <td>Jeel</td>
-                <td id="jeel-science">N/A</td>
-                <td id="jeel-math">N/A</td>
-                <td id="jeel-english">N/A</td>
-                <td id="jeel-geography">N/A</td>
+            <tr id="english-row">
+                <td>English</td>
+                <td id="english-score">N/A</td>
             </tr>
-            <tr id="herry-row">
-                <td>Herry</td>
-                <td id="herry-science">N/A</td>
-                <td id="herry-math">N/A</td>
-                <td id="herry-english">N/A</td>
-                <td id="herry-geography">N/A</td>
+            <tr id="geography-row">
+                <td>Geography</td>
+                <td id="geography-score">N/A</td>
             </tr>
         </tbody>
     </table>
@@ -61,7 +44,7 @@
     <script type="text/javascript">
         const URL = "./my_model/";
 
-        let model, webcam, labelContainer, maxPredictions;
+        let model, webcam, maxPredictions;
 
         // Predefined test scores for each subject by person
         const testScores = {
@@ -141,23 +124,14 @@
 
         // Update the table with test scores for the detected person
         function updateTable(name) {
-            document.getElementById("score-table").style.display = "table";
+            const personScores = testScores[name];
 
-            // Update the table only for the detected person
-            for (let person in testScores) {
-                if (person === name) {
-                    document.getElementById(person.toLowerCase() + "-science").innerHTML = testScores[person]["Science"];
-                    document.getElementById(person.toLowerCase() + "-math").innerHTML = testScores[person]["Math"];
-                    document.getElementById(person.toLowerCase() + "-english").innerHTML = testScores[person]["English"];
-                    document.getElementById(person.toLowerCase() + "-geography").innerHTML = testScores[person]["Geography"];
-                } else {
-                    // Set N/A for others
-                    document.getElementById(person.toLowerCase() + "-science").innerHTML = "N/A";
-                    document.getElementById(person.toLowerCase() + "-math").innerHTML = "N/A";
-                    document.getElementById(person.toLowerCase() + "-english").innerHTML = "N/A";
-                    document.getElementById(person.toLowerCase() + "-geography").innerHTML = "N/A";
-                }
-            }
+            // Display the table and fill in the scores
+            document.getElementById("score-table").style.display = "table";
+            document.getElementById("science-score").innerHTML = "Science: " + personScores["Science"];
+            document.getElementById("math-score").innerHTML = "Math: " + personScores["Math"];
+            document.getElementById("english-score").innerHTML = "English: " + personScores["English"];
+            document.getElementById("geography-score").innerHTML = "Geography: " + personScores["Geography"];
         }
     </script>
 
