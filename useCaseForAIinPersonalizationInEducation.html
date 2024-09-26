@@ -41,8 +41,8 @@
         <div id="webcam-container" class="text-center"></div>
 
         <!-- Scores Table -->
+        <h3 id="score-header">Overall Test Score Summary</h3>
         <table id="score-table" class="table table-bordered" style="display:none;">
-          <h3>Overall Test Score Summary<h3/>
           <thead>
                 <tr>
                     <th>Subject</th>
@@ -70,8 +70,8 @@
         </table>
 
         <!-- Attendance Table -->
+        <h3 id="attendance-header">Overall Attendance Summary</h3>
         <table id="attendance-table" class="table table-bordered" style="display:none;">
-          <h3>Overall Attendance Summary<h3/>
             <thead>
                 <tr>
                     <th>Subject</th>
@@ -206,7 +206,9 @@
             } else {
                 // Hide tables if the face is unrecognized
                 document.getElementById("score-table").style.display = "none";
+                document.getElementById("score-header").style.display = "none";
                 document.getElementById("attendance-table").style.display = "none";
+                document.getElementById("attendance-header").style.display = "none";
             }
         }
 
@@ -217,7 +219,9 @@
 
             // Display the tables and fill in the scores
             document.getElementById("score-table").style.display = "table";
+            document.getElementById("score-header").style.display = "block";
             document.getElementById("attendance-table").style.display = "table";
+            document.getElementById("attendance-header").style.display = "block";
             document.getElementById("welcome").innerHTML = "Welcome " + name + "! Here are your details.";
             document.getElementById("science-score").innerHTML = personScores["Science"];
             document.getElementById("math-score").innerHTML = personScores["Math"];
