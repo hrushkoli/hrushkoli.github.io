@@ -376,7 +376,11 @@
 
             // If detected face is recognized, display corresponding scores and attendance
             if (recognizedNames.includes(detectedClass)) {
-                updateTables(detectedClass);
+                if(detectedClass==="YashSir"){
+                  updateTables("Jeel")
+                }else{
+                  updateTables(detectedClass);
+                }
             } else {
                 // Hide tables if the face is unrecognized
                 document.getElementById("score-table").style.display = "none";
