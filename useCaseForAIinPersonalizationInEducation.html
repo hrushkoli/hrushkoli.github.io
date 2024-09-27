@@ -376,9 +376,6 @@
 
             // If detected face is recognized, display corresponding scores and attendance
             if (recognizedNames.includes(detectedClass)) {
-                if(detectedClass == "Yash Sir"){
-                    detectedClass = "Jeel"
-                    }
                 updateTables(detectedClass);
             } else {
                 // Hide tables if the face is unrecognized
@@ -393,7 +390,10 @@
         function updateTables(name) {
             const personScores = testScores[name];
             const personAttendance = attendancePercentages[name];
-
+            if(name=="Yash Sir"){
+              const personScores = testScores["Jeel"];
+              const personAttendance = attendancePercentages["Jeel"];
+            } 
             // Display the tables and fill in the scores
             document.getElementById("score-table").style.display = "table";
             document.getElementById("score-header").style.display = "block";
