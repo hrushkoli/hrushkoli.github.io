@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaiolo Palace - Classic Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fce7f3;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        .heading-font { font-family: 'Fredoka One', cursive; }
+        
+        /* Factory Wall & Ceiling Pipes */
+        .factory-wall {
+            background: linear-gradient(to bottom, #f9a8d4 0%, #fbcfe8 100%);
+            height: 60vh;
+            position: relative;
+            border-bottom: 12px solid #be185d;
+            box-shadow: inset 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        /* Checkered Floor with Perspective */
+        .checkered-floor {
+            height: 40vh;
+            background-image: 
+                linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
+                linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
+                linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+            background-size: 80px 80px;
+            background-color: #ffffff;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .checkered-floor::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.05), transparent);
+            pointer-events: none;
+        }
+
+        /* Improved Machines */
+        .machine-arm {
+            position: absolute;
+            top: 0;
+            width: 140px;
+            height: 220px;
+            background: linear-gradient(to right, #94a3b8, #cbd5e1, #94a3b8);
+            border: 5px solid #475569;
+            border-top: none;
+            border-radius: 0 0 50px 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 20px;
+            z-index: 10;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+        }
+        .machine-arm::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            width: 20px;
+            height: 40px;
+            background: repeating-linear-gradient(0deg, #be185d, #be185d 5px, #f472b6 5px, #f472b6 10px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Efficiency Bar Styles */
+        .efficiency-container {
+            width: 180px;
+            height: 14px;
+            background: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 3px solid #475569;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        #efficiency-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4ade80, #facc15, #ef4444);
+            transition: width 0.1s linear;
+        }
+
+        /* Glowing Indicator Light */
+        .status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px #ef4444;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        /* Navigation Arrows (Big Green Buttons) */
+        .nav-btn {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(to bottom, #4ade80, #16a34a);
+            border: 5px solid #14532d;
+            border-radius: 50%;
+            color: white;
+            font-size: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #064e3b;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+        }
+        .nav-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #064e3b; }
+
+        /* Control Panel Buttons */
+        .action-btn {
+            background: linear-gradient(to bottom, #ffffff, #f1f5f9);
+            border: 3px solid #cbd5e1;
+            border-radius: 15px;
+            font-size: 28px;
+            transition: all 0.1s;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #cbd5e1;
+            padding: 5px;
+        }
+        .action-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #cbd5e1; }
+        .action-btn.selected { 
+            background: linear-gradient(to bottom, #fef08a, #facc15); 
+            border-color: #ca8a04; 
+            box-shadow: 0 5px 0 #854d0e; 
+        }
+
+        /* Order Monitor with "Glass" effect */
+        .order-monitor {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            width: 240px;
+            background: #0f172a;
+            border: 12px solid #64748b;
+            border-radius: 20px;
+            padding: 15px;
+            color: #22d3ee;
+            z-index: 40;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3), inset 0 0 20px rgba(34,211,238,0.2);
+        }
+        .monitor-glass {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            border-radius: 8px;
+        }
+
+        /* Trash & Shipping Improvements */
+        .trash-can {
+            position: absolute;
+            bottom: -30px;
+            right: 40px;
+            width: 110px;
+            height: 160px;
+            background: linear-gradient(to right, #475569, #94a3b8, #475569);
+            border: 5px solid #1e293b;
+            border-radius: 15px;
+            z-index: 25;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Feedback Animation */
+        .pop-in { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes pop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <!-- Wall Area -->
+    <div class="factory-wall">
+        
+        <!-- Machines -->
+        <div id="m-0" class="machine-arm" style="left: 10%;">
+            <div class="status-light"></div>
+            <div class="w-20 h-20 bg-orange-50 rounded-full border-4 border-orange-200 flex items-center justify-center text-4xl shadow-inner">🥯</div>
+            <span class="heading-font text-[12px] text-slate-600 uppercase mt-2">Dough Press</span>
+        </div>
+        <div id="m-1" class="machine-arm" style="left: 30%;">
+            <div class="status-light" style="background: #22c55e; box-shadow: 0 0 10px #22c55e;"></div>
+            <div class="w-20 h-20 bg-red-100 rounded-full border-4 border-red-200 flex items-center justify-center text-4xl shadow-inner">🍅</div>
+            <span class="heading-font text-[12px] text-slate-600 uppercase mt-2">Sauce Vat</span>
+        </div>
+        <div id="m-2" class="machine-arm" style="left: 50%;">
+            <div class="status-light" style="background: #eab308; box-shadow: 0 0 10px #eab308;"></div>
+            <div class="w-20 h-20 bg-yellow-50 rounded-full border-4 border-yellow-200 flex items-center justify-center text-4xl shadow-inner">🧀</div>
+            <span class="heading-font text-[12px] text-slate-600 uppercase mt-2">Cheese Grater</span>
+        </div>
+        <div id="m-3" class="machine-arm" style="left: 70%;">
+            <div class="status-light"></div>
+            <div class="w-20 h-20 bg-green-50 rounded-full border-4 border-green-200 flex items-center justify-center text-4xl shadow-inner">🫑</div>
+            <span class="heading-font text-[12px] text-slate-600 uppercase mt-2">Topper Arm</span>
+        </div>
+
+        <!-- Order Monitor -->
+        <div class="order-monitor">
+            <div class="monitor-glass"></div>
+            <div class="text-[12px] font-bold mb-2 tracking-widest border-b border-cyan-900 pb-1">PIZZA PROTOCOL</div>
+            <div id="target-preview" class="w-full h-32 bg-slate-950 rounded-lg flex items-center justify-center mb-3 border border-cyan-900 shadow-inner"></div>
+            <div id="target-list" class="text-[11px] font-mono leading-relaxed space-y-1 opacity-80"></div>
+        </div>
+
+        <!-- Stats and Efficiency -->
+        <div class="absolute top-6 right-6 flex flex-col gap-3">
+            <div class="bg-white px-6 py-2 rounded-2xl shadow-xl border-b-8 border-slate-200 text-center">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Score</div>
+                <div id="score" class="heading-font text-4xl text-orange-500">0</div>
+            </div>
+            <div class="bg-slate-800 p-3 rounded-xl border-2 border-slate-600 shadow-lg flex flex-col items-center gap-1">
+                <div class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest">Efficiency</div>
+                <div class="efficiency-container">
+                    <div id="efficiency-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conveyor & Finish -->
+        <div class="conveyor-belt" style="background: #27272a; border-top: 8px solid #000;">
+            <div class="belt-rollers"></div>
+        </div>
+        
+        <div class="absolute bottom-[40px] right-[160px] flex flex-col items-center">
+            <div class="text-[10px] font-bold text-white bg-indigo-500 px-3 py-1 rounded-full mb-1">LOAD ZONE</div>
+            <div class="w-32 h-4 bg-indigo-300 rounded-full opacity-50"></div>
+            <div class="shipping-star mt-2">★</div>
+        </div>
+
+        <!-- Trash -->
+        <div class="trash-can">
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 text-4xl">🗑️</div>
+        </div>
+
+        <!-- Pizza Assembly -->
+        <div id="pizza-assembly" class="pizza-entity absolute bottom-[-50px] w-52 h-52 flex items-center justify-center z-30" style="left: 10%;">
+            <svg id="pizza-svg" viewBox="0 0 200 200" class="w-full h-full drop-shadow-2xl">
+                <path id="svg-crust" d="" fill="#f3d299" stroke="#d9a05b" stroke-width="4" />
+                <path id="svg-sauce" d="" fill="transparent" />
+                <path id="svg-cheese" d="" fill="transparent" />
+                <g id="svg-toppings"></g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Floor Area -->
+    <div class="checkered-floor relative flex-grow">
+        
+        <!-- Control Panel -->
+        <div class="control-panel absolute bottom-8 left-1/2 -translate-x-1/2 w-[95%] max-w-1100 bg-slate-200 border-8 border-slate-400 rounded-[2.5rem] shadow-[0_12px_0_#94a3b8] p-5 flex gap-5">
+            
+            <!-- Nav Arrows -->
+            <div class="nav-controls">
+                <button onclick="movePizza('left')" class="nav-btn">◀</button>
+                <button onclick="movePizza('right')" class="nav-btn">▶</button>
+            </div>
+
+            <!-- Panel Sections -->
+            <div class="flex-grow grid grid-cols-4 gap-4">
+                
+                <!-- Dough Group -->
+                <div class="button-group bg-slate-300 p-2 rounded-2xl border-4 border-slate-400/30 grid grid-cols-2 gap-2">
+                    <button onclick="setCrust('Circle')" class="action-btn">⭕</button>
+                    <button onclick="setCrust('Square')" class="action-btn">⬜</button>
+                    <button onclick="setCrust('Heart')" class="action-btn">❤️</button>
+                    <button onclick="resetPizza()" class="action-btn bg-orange-400 text-white text-[10px] font-bold border-orange-600 shadow-[0_5px_0_#9a3412]">CLEAR</button>
+                </div>
+
+                <!-- Sauce Group -->
+                <div class="button-group bg-slate-300 p-2 rounded-2xl border-4 border-slate-400/30 grid grid-cols-2 gap-2">
+                    <button onclick="setSauce('Tomato')" class="action-btn">🍅</button>
+                    <button onclick="setSauce('Pesto')" class="action-btn">🌿</button>
+                    <button onclick="setSauce('White')" class="action-btn">🥛</button>
+                    <button onclick="clearSauce()" class="action-btn text-[10px] font-bold">X</button>
+                </div>
+
+                <!-- Cheese Group -->
+                <div class="button-group bg-slate-300 p-2 rounded-2xl border-4 border-slate-400/30 grid grid-cols-2 gap-2">
+                    <button onclick="setCheese('Mozzarella')" class="action-btn">⚪</button>
+                    <button onclick="setCheese('Cheddar')" class="action-btn">🟠</button>
+                    <button onclick="setCheese('Mixed')" class="action-btn">🧀</button>
+                    <button onclick="clearCheese()" class="action-btn text-[10px] font-bold">X</button>
+                </div>
+
+                <!-- Toppings Group -->
+                <div class="button-group bg-slate-300 p-2 rounded-2xl border-4 border-slate-400/30 grid grid-cols-3 gap-2">
+                    <button onclick="toggleTopping('Pepperoni')" class="action-btn top-btn" data-top="Pepperoni">🔴</button>
+                    <button onclick="toggleTopping('Mushroom')" class="action-btn top-btn" data-top="Mushroom">🍄</button>
+                    <button onclick="toggleTopping('Olive')" class="action-btn top-btn" data-top="Olive">🌑</button>
+                    <button onclick="toggleTopping('Peppers')" class="action-btn top-btn" data-top="Peppers">🫑</button>
+                    <button onclick="toggleTopping('Pineapple')" class="action-btn top-btn" data-top="Pineapple">🍍</button>
+                    <button onclick="submitPizza()" class="action-btn bg-yellow-400 border-yellow-600 shadow-[0_5px_0_#a16207]">📦</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback -->
+    <div id="feedback-overlay" class="pointer-events-none fixed inset-0 flex items-center justify-center z-[100] opacity-0 transition-opacity">
+        <div id="feedback-text" class="heading-font text-9xl text-white drop-shadow-[0_10px_0_rgba(0,0,0,0.2)]"></div>
+    </div>
+
+    <script>
+        const SHAPES = ['Circle', 'Square', 'Heart'];
+        const SAUCES = ['Tomato', 'Pesto', 'White'];
+        const CHEESES = ['Mozzarella', 'Cheddar', 'Mixed'];
+        const TOPPINGS_LIST = ['Pepperoni', 'Mushroom', 'Olive', 'Peppers', 'Pineapple'];
+
+        const COLORS = { Tomato: '#ef4444', Pesto: '#22c55e', White: '#f1f5f9', Mozzarella: '#fffbeb', Cheddar: '#fbbf24', Mixed: '#fcd34d' };
+        const PATHS = {
+            Circle: "M 100, 100 m -85, 0 a 85,85 0 1,0 170,0 a 85,85 0 1,0 -170,0",
+            Square: "M 25,25 H 175 V 175 H 25 Z",
+            Heart: "M 100,60 C 100,60 90,30 60,30 C 30,30 20,60 20,80 C 20,120 100,170 100,170 C 100,170 180,120 180,80 C 180,60 170,30 140,30 C 110,30 100,60 100,60 Z"
+        };
+        const SAUCE_PATHS = {
+            Circle: "M 100, 100 m -70, 0 a 70,70 0 1,0 140,0 a 70,70 0 1,0 -140,0",
+            Square: "M 40,40 H 160 V 160 H 40 Z",
+            Heart: "M 100,75 C 100,75 92,50 70,50 C 50,50 40,70 40,85 C 40,115 100,155 100,155 C 100,155 160,115 160,85 C 160,70 150,50 130,50 C 108,50 100,75 100,75 Z"
+        };
+
+        let currentPizza = { shape: null, sauce: null, cheese: null, toppings: [] };
+        let order = { shape: null, sauce: null, cheese: null, toppings: [] };
+        let score = 0;
+        let posIndex = 0;
+        let efficiency = 100;
+        let gameActive = true;
+        let timerInterval;
+
+        const POSITIONS = ["10%", "30%", "50%", "70%", "85%"];
+
+        function init() {
+            generateOrder();
+            resetPizza();
+            startTimer();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if(!gameActive) return;
+                
+                // Depletion speed increases slightly as score goes up
+                const depletionRate = 0.4 + (score / 2000);
+                efficiency -= depletionRate;
+                
+                document.getElementById('efficiency-fill').style.width = efficiency + "%";
+                
+                if(efficiency <= 0) endGame();
+            }, 100);
+        }
+
+        function generateOrder() {
+            const tCount = Math.floor(Math.random() * 2) + 1;
+            const shuffled = [...TOPPINGS_LIST].sort(() => 0.5 - Math.random());
+            
+            order = {
+                shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
+                sauce: SAUCES[Math.floor(Math.random() * SAUCES.length)],
+                cheese: CHEESES[Math.floor(Math.random() * CHEESES.length)],
+                toppings: shuffled.slice(0, tCount).sort()
+            };
+
+            const preview = document.getElementById('target-preview');
+            preview.innerHTML = `
+                <svg viewBox="0 0 200 200" class="w-full h-full scale-75">
+                    <path d="${PATHS[order.shape]}" fill="#f3d299" stroke="#d9a05b" stroke-width="4" />
+                    <path d="${SAUCE_PATHS[order.shape]}" fill="${COLORS[order.sauce]}" />
+                    <path d="${SAUCE_PATHS[order.shape]}" fill="${COLORS[order.cheese]}" fill-opacity="0.7" />
+                </svg>
+            `;
+            
+            document.getElementById('target-list').innerHTML = `
+                <div class="flex justify-between"><span>BASE:</span> <span>${order.shape}</span></div>
+                <div class="flex justify-between"><span>SAUCE:</span> <span>${order.sauce}</span></div>
+                <div class="flex justify-between"><span>CHEESE:</span> <span>${order.cheese}</span></div>
+                <div class="mt-1 text-[9px] text-cyan-500">${order.toppings.join(' + ')}</div>
+            `;
+        }
+
+        function movePizza(dir) {
+            if(dir === 'left') posIndex = Math.max(0, posIndex - 1);
+            else posIndex = Math.min(4, posIndex + 1);
+            document.getElementById('pizza-assembly').style.left = POSITIONS[posIndex];
+        }
+
+        function setCrust(s) {
+            if(posIndex !== 0) return;
+            currentPizza.shape = s;
+            document.getElementById('svg-crust').setAttribute('d', PATHS[s]);
+            if(currentPizza.sauce) setSauce(currentPizza.sauce);
+            if(currentPizza.cheese) setCheese(currentPizza.cheese);
+        }
+
+        function setSauce(s) {
+            if(posIndex !== 1 || !currentPizza.shape) return;
+            currentPizza.sauce = s;
+            const p = document.getElementById('svg-sauce');
+            p.setAttribute('d', SAUCE_PATHS[currentPizza.shape]);
+            p.setAttribute('fill', COLORS[s]);
+        }
+        function clearSauce() { currentPizza.sauce = null; document.getElementById('svg-sauce').setAttribute('fill', 'transparent'); }
+
+        function setCheese(s) {
+            if(posIndex !== 2 || !currentPizza.shape) return;
+            currentPizza.cheese = s;
+            const p = document.getElementById('svg-cheese');
+            p.setAttribute('d', SAUCE_PATHS[currentPizza.shape]);
+            p.setAttribute('fill', COLORS[s]);
+            p.setAttribute('fill-opacity', "0.7");
+        }
+        function clearCheese() { currentPizza.cheese = null; document.getElementById('svg-cheese').setAttribute('fill', 'transparent'); }
+
+        function toggleTopping(t) {
+            if(posIndex !== 3 || !currentPizza.shape) return;
+            const idx = currentPizza.toppings.indexOf(t);
+            if(idx > -1) currentPizza.toppings.splice(idx, 1);
+            else currentPizza.toppings.push(t);
+            currentPizza.toppings.sort();
+            renderToppings();
+            updateToppingButtons();
+        }
+
+        function updateToppingButtons() {
+            document.querySelectorAll('.top-btn').forEach(btn => {
+                const t = btn.getAttribute('data-top');
+                if(currentPizza.toppings.includes(t)) btn.classList.add('selected');
+                else btn.classList.remove('selected');
+            });
+        }
+
+        function renderToppings() {
+            const g = document.getElementById('svg-toppings');
+            g.innerHTML = '';
+            const icons = { Pepperoni:'🔴', Mushroom:'🍄', Olive:'🌑', Peppers:'🫑', Pineapple:'🍍' };
+            currentPizza.toppings.forEach((top, tIdx) => {
+                const offset = tIdx * 4;
+                const coords = [[75,75],[125,75],[100,100],[75,125],[125,125]].map(c => [c[0]+offset, c[1]+offset]);
+                coords.forEach(c => {
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    txt.setAttribute('x', c[0]); txt.setAttribute('y', c[1]);
+                    txt.setAttribute('font-size', '18'); txt.setAttribute('text-anchor', 'middle');
+                    txt.setAttribute('dominant-baseline', 'middle');
+                    txt.textContent = icons[top];
+                    g.appendChild(txt);
+                });
+            });
+        }
+
+        function submitPizza() {
+            if(posIndex !== 4) return;
+            const match = currentPizza.shape === order.shape && currentPizza.sauce === order.sauce &&
+                          currentPizza.cheese === order.cheese && 
+                          JSON.stringify(currentPizza.toppings.sort()) === JSON.stringify(order.toppings.sort());
+
+            if(match) {
+                score += 200;
+                // Perfect pizzas restore efficiency
+                efficiency = Math.min(100, efficiency + 15);
+                showFeedback("MASTERPIECE!", "text-green-400");
+            } else {
+                score = Math.max(0, score - 50);
+                showFeedback("OVAL REJECT!", "text-red-400");
+            }
+            document.getElementById('score').innerText = score;
+            document.getElementById('pizza-assembly').style.left = "130%";
+            setTimeout(() => { generateOrder(); resetPizza(); }, 800);
+        }
+
+        function resetPizza() {
+            currentPizza = { shape: null, sauce: null, cheese: null, toppings: [] };
+            posIndex = 0;
+            document.getElementById('pizza-assembly').style.left = POSITIONS[0];
+            document.getElementById('svg-crust').setAttribute('d', '');
+            document.getElementById('svg-sauce').setAttribute('fill', 'transparent');
+            document.getElementById('svg-cheese').setAttribute('fill', 'transparent');
+            document.getElementById('svg-toppings').innerHTML = '';
+            updateToppingButtons();
+        }
+
+        function showFeedback(text, color) {
+            const el = document.getElementById('feedback-overlay');
+            const txt = document.getElementById('feedback-text');
+            txt.innerText = text;
+            txt.className = `heading-font text-9xl ${color} drop-shadow-xl pop-in`;
+            el.style.opacity = "1";
+            setTimeout(() => el.style.opacity = "0", 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            alert("Shift's over! The factory closed. Final Score: " + score);
+            location.reload();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
