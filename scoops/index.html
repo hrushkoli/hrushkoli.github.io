@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scoops of Love</title>
+    <style>
+        :root {
+            --pink-primary: #ff85a1;
+            --pink-light: #fbb1bd;
+            --cream: #fff0f3;
+            --text-color: #7209b7;
+            --danger: #ff4d4d;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--cream);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            gap: 10px;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 3px solid var(--pink-primary);
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.2);
+            font-weight: bold;
+            color: var(--text-color);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        #miss-container {
+            border-color: var(--danger);
+            color: var(--danger);
+            font-size: 14px;
+        }
+
+        #win-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 240, 243, 0.98);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        #win-screen h1 {
+            color: var(--pink-primary);
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        #win-screen p {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        .highlight {
+            color: var(--pink-primary);
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .btn {
+            background: var(--pink-primary);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.3rem;
+            border-radius: 35px;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 5px 0px #e05e7a;
+            transition: all 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #e05e7a;
+        }
+
+        #intro-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cream);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 110;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="intro-screen">
+        <div style="font-size: 60px; margin-bottom: 10px;">🍦💖</div>
+        <h1 style="color: var(--pink-primary); font-size: 2.5rem; margin: 0;">Scoops of Love</h1>
+        <p style="color: var(--text-color); margin: 15px 0 40px 0; max-width: 250px; line-height: 1.4;">
+            Catch <b>69 scoops</b> to win!<br>
+            <small>(Don't miss more than 5!)</small>
+        </p>
+        <button class="btn" id="start-btn">Start Catching</button>
+    </div>
+
+    <div id="ui-layer">
+        <div class="stat-badge" id="score-container">
+            <span id="score-text">Scoops: 0 / 69</span>
+        </div>
+        <div class="stat-badge" id="miss-container">
+            <span id="miss-text">Missed: 0 / 5</span>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="win-screen">
+        <h1>Good Job Baby!! 🍦✨</h1>
+        <p>
+            You caught all 69 scoops!<br><br>
+            <span class="highlight">Take a screenshot now</span> and send it to <span class="highlight">hrishieee 💖</span> to get your real ice cream reward!
+        </p>
+        <div style="font-size: 60px; margin-bottom: 40px;">📸💖🍦</div>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreText = document.getElementById('score-text');
+    const missText = document.getElementById('miss-text');
+    const winScreen = document.getElementById('win-screen');
+    const introScreen = document.getElementById('intro-screen');
+    const startBtn = document.getElementById('start-btn');
+
+    let width, height;
+    let score = 0;
+    let missed = 0;
+    let gameActive = false;
+    let particles = [];
+    let scoops = [];
+    
+    const targetScore = 69;
+    const maxMissed = 5;
+    const flavors = ['#ff85a1', '#fbb1bd', '#ffffff', '#ffd166', '#a2d2ff'];
+
+    const cone = {
+        width: 90,
+        height: 130,
+        x: 0,
+        y: 0,
+        targetX: 0
+    };
+
+    function init() {
+        resize();
+        cone.x = width / 2 - cone.width / 2;
+        cone.targetX = cone.x;
+    }
+
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        cone.y = height - 160;
+    }
+
+    window.addEventListener('resize', resize);
+
+    function handleInput(e) {
+        if (!gameActive) return;
+        if (e.type === 'touchmove') e.preventDefault();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        cone.targetX = clientX - cone.width / 2;
+        if (cone.targetX < 0) cone.targetX = 0;
+        if (cone.targetX > width - cone.width) cone.targetX = width - cone.width;
+    }
+
+    window.addEventListener('mousedown', handleInput);
+    window.addEventListener('mousemove', handleInput);
+    window.addEventListener('touchstart', handleInput, { passive: false });
+    window.addEventListener('touchmove', handleInput, { passive: false });
+
+    startBtn.addEventListener('click', () => {
+        introScreen.style.display = 'none';
+        gameActive = true;
+        init();
+        spawnScoop();
+        gameLoop();
+    });
+
+    function spawnScoop() {
+        if (!gameActive || score >= targetScore) return;
+
+        const radius = 26;
+        scoops.push({
+            x: radius + Math.random() * (width - radius * 2),
+            y: -50,
+            radius: radius,
+            color: flavors[Math.floor(Math.random() * flavors.length)],
+            speed: 2.2 + Math.random() * 1.5 + (score / 50) 
+        });
+
+        const nextSpawn = Math.max(800, 1500 - (score * 10));
+        setTimeout(spawnScoop, nextSpawn);
+    }
+
+    function createParticles(x, y, color) {
+        for (let i = 0; i < 6; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                radius: Math.random() * 4,
+                color: color,
+                life: 1.0
+            });
+        }
+    }
+
+    function drawCone() {
+        cone.x += (cone.targetX - cone.x) * 0.25;
+        const x = cone.x;
+        const y = cone.y;
+        const w = cone.width;
+        const h = cone.height;
+
+        ctx.fillStyle = '#deb887';
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + w, y);
+        ctx.lineTo(x + w / 2, y + h);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(139, 69, 19, 0.15)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for(let i = 0; i <= 10; i++) {
+            ctx.moveTo(x + (w/10)*i, y);
+            ctx.lineTo(x + w/2 + ((w/10)*i - w/2)/2, y + h/2);
+        }
+        ctx.stroke();
+    }
+
+    function drawHeart(x, y, size, color, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(x, y - size/2, x - size, y - size/2, x - size, y);
+        ctx.bezierCurveTo(x - size, y + size/2, x, y + size, x, y + size);
+        ctx.bezierCurveTo(x, y + size, x + size, y + size/2, x + size, y);
+        ctx.bezierCurveTo(x + size, y - size/2, x, y - size/2, x, y);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function update() {
+        if (!gameActive) return;
+
+        for (let i = scoops.length - 1; i >= 0; i--) {
+            const s = scoops[i];
+            s.y += s.speed;
+
+            // Catch Collision
+            const buffer = 15;
+            if (s.y + s.radius > cone.y && 
+                s.y < cone.y + 30 &&
+                s.x > cone.x - buffer && 
+                s.x < cone.x + cone.width + buffer) {
+                
+                score++;
+                scoreText.innerText = `Scoops: ${score} / 69`;
+                createParticles(s.x, s.y, s.color);
+                scoops.splice(i, 1);
+
+                if (score >= targetScore) {
+                    gameActive = false;
+                    setTimeout(() => { winScreen.style.display = 'flex'; }, 500);
+                }
+                continue;
+            }
+
+            // Missed Scoop
+            if (s.y > height + 50) {
+                missed++;
+                missText.innerText = `Missed: ${missed} / 5`;
+                scoops.splice(i, 1);
+                
+                if (missed >= maxMissed) {
+                    gameActive = false;
+                    document.body.style.backgroundColor = '#ff4d4d';
+                    setTimeout(() => { location.reload(); }, 300);
+                }
+            }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx; p.y += p.vy; p.life -= 0.015;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Decor Hearts
+        if (Math.random() > 0.985) {
+            particles.push({
+                x: Math.random() * width, y: height + 20,
+                vx: (Math.random() - 0.5) * 1, vy: -0.5 - Math.random() * 1,
+                radius: 8 + Math.random() * 8, color: '#ff85a1', life: 1.0, isHeart: true
+            });
+        }
+
+        particles.forEach(p => {
+            if (p.isHeart) {
+                drawHeart(p.x, p.y, p.radius, p.color, p.life * 0.5);
+            } else {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+        ctx.globalAlpha = 1.0;
+
+        scoops.forEach(s => {
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.beginPath();
+            ctx.arc(s.x - s.radius*0.35, s.y - s.radius*0.35, s.radius*0.2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        drawCone();
+    }
+
+    function gameLoop() {
+        if (!gameActive && score < targetScore) return;
+        update();
+        render();
+        requestAnimationFrame(gameLoop);
+    }
+
+    init();
+</script>
+</body>
+</html>
