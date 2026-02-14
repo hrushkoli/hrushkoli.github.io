@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valentine's Quest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #ff85a2;
+            --deep-red: #ff4d6d;
+            --soft-white: #fff0f3;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--soft-white);
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .pixel-font {
+            font-family: 'Press+Start+2P', cursive;
+        }
+
+        .game-section {
+            display: none;
+            height: 100dvh;
+            width: 100vw;
+            padding: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .active {
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Whack-a-Mole Styles */
+        .mole-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .hole {
+            width: 80px;
+            height: 80px;
+            background: #7d5a50;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #5d4037;
+            box-shadow: inset 0 10px 0 rgba(0,0,0,0.2);
+        }
+
+        .mole {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            transition: top 0.4s ease-out;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mole.up {
+            top: 0;
+        }
+
+        .mole.whacked {
+            animation: whackedAnim 0.3s ease-out forwards;
+        }
+
+        @keyframes whackedAnim {
+            0% { transform: scale(1); filter: brightness(1.5); }
+            50% { transform: scale(0.5) rotate(10deg); }
+            100% { transform: scale(0) translateY(50px); }
+        }
+
+        .hit-effect {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+            font-size: 2rem;
+            animation: heartFloat 0.6s ease-out forwards;
+        }
+
+        @keyframes heartFloat {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; }
+        }
+
+        /* High Fidelity 64-bit Character */
+        .pixel-me {
+            width: 90px;
+            height: 90px;
+            image-rendering: pixelated;
+        }
+
+        /* Flower Styles */
+        .flower-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+        }
+
+        .petal {
+            position: absolute;
+            width: 60px;
+            height: 100px;
+            background: #ffb3c1;
+            border-radius: 50px 50px 10px 10px;
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            cursor: pointer;
+            border: 2px solid #ff85a2;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .flower-center {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #ffea00;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Mail Message Styles */
+        .mail-box {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            max-width: 85%;
+            display: none;
+            position: relative;
+            border: 1px solid #eee;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .mail-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                #ff4d6d,
+                #ff4d6d 10px,
+                #fff 10px,
+                #fff 20px,
+                #004aad 20px,
+                #004aad 30px,
+                #fff 30px,
+                #fff 40px
+            );
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Ring Game Styles */
+        .hand-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #ffd700;
+            border-radius: 50%;
+            position: absolute;
+            cursor: grab;
+            z-index: 50;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring::after {
+            content: '💎';
+            position: absolute;
+            top: -15px;
+            font-size: 24px;
+        }
+
+        .target-finger {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px dashed #ff4d6d;
+            border-radius: 50%;
+            top: 130px;
+            left: 105px;
+        }
+
+        /* Custom UI */
+        .btn {
+            background: var(--deep-red);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 0px #c9184a;
+            transition: transform 0.1s;
+            margin: 10px;
+            min-width: 120px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px #c9184a;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Section 1: The Ask -->
+    <div id="section1" class="game-section active">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-[#ff4d6d] mb-4">Hi Cutie! ❤️</h1>
+            <p class="text-xl text-[#ff85a2]">I have a very important question...</p>
+        </div>
+        <div class="text-2xl font-bold mb-10 text-[#590d22]">Will you be my Valentine?</div>
+        <div class="flex gap-4 relative w-full justify-center" id="ask-buttons">
+            <button class="btn" onclick="nextSection(2)">YES!</button>
+            <button class="btn bg-gray-400 shadow-gray-500" id="no-btn">NO</button>
+        </div>
+        <div class="mt-10 animate-bounce text-4xl">💌</div>
+    </div>
+
+    <!-- Section 2: Whack-a-Me (64-bit Style) -->
+    <div id="section2" class="game-section">
+        <div class="absolute top-10 left-0 w-full flex justify-between px-8">
+            <div class="pixel-font text-xs">SCORE: <span id="score">0</span></div>
+            <div class="pixel-font text-xs">TIME: <span id="timer">30</span></div>
+        </div>
+        <h2 class="pixel-font text-[10px] md:text-sm mb-4 text-[#ff4d6d] leading-relaxed px-4">i know i make you mad, whack me for all the times i'm mean to you🥺</h2>
+        <p class="text-xs mb-6 px-4">Tap 10 characters to continue!</p>
+        
+        <div class="mole-grid">
+            <div id="moles-container" class="contents"></div>
+        </div>
+    </div>
+
+    <!-- Section 3: Petal Reveal -->
+    <div id="section3" class="game-section">
+        <h2 class="text-2xl font-bold mb-8 text-[#ff4d6d]">Pluck the petals...</h2>
+        <div class="flower-container" id="flower">
+            <div class="flower-center">
+                <span class="text-2xl">😊</span>
+            </div>
+        </div>
+        <!-- Updated to revealed mail -->
+        <div id="secret-message" class="mail-box mt-10">
+            <div class="text-3xl mb-2 text-[#ff4d6d]">💌</div>
+            <p class="text-lg italic text-gray-700 leading-relaxed font-bold">"you are the best thing ever to happen to me baby"</p>
+            <button class="btn mt-6" onclick="nextSection(4)">The Promise 💍</button>
+        </div>
+    </div>
+
+    <!-- Section 4: Ring on Finger -->
+    <div id="section4" class="game-section">
+        <h2 class="text-3xl font-bold mb-4 text-[#ff4d6d]">The Final Promise...</h2>
+        <p class="mb-6 text-lg italic text-[#ff85a2]">Place the ring on my finger to make it official! ❤️</p>
+        
+        <div class="hand-container" id="hand-area">
+            <svg viewBox="0 0 200 300" class="w-full h-full">
+                <path d="M40,250 Q40,150 50,130 Q60,110 70,130 L70,250" fill="#ffdbac" />
+                <path d="M75,250 Q75,100 90,80 Q105,60 120,80 L120,250" fill="#ffdbac" stroke="#ff85a2" stroke-width="1" />
+                <path d="M125,250 Q125,80 140,60 Q155,40 170,60 L170,250" fill="#ffdbac" />
+                <path d="M175,250 Q175,100 185,120 Q195,140 195,180 L195,250" fill="#ffdbac" />
+                <rect x="40" y="240" width="155" height="60" fill="#ffdbac" rx="20" />
+            </svg>
+            <div class="target-finger" id="ring-target"></div>
+            <div class="ring" id="draggable-ring"></div>
+        </div>
+    </div>
+
+    <!-- Final Celebration -->
+    <div id="section5" class="game-section">
+        <div class="text-6xl mb-6">🎉💖🥂</div>
+        <h1 class="text-4xl font-bold text-[#ff4d6d] mb-4">It's Official!</h1>
+        <p class="text-xl mb-8">You're my Valentine!</p>
+        <div class="bg-white p-6 rounded-3xl shadow-xl max-w-xs">
+            <p class="text-lg italic text-[#ff4d6d]">"i love you soooooooo muchhhhh my love"</p>
+        </div>
+        <button class="btn mt-10" onclick="location.reload()">Play Again?</button>
+    </div>
+
+    <script>
+        let currentScore = 0;
+        let moleTimer;
+        let moleInterval;
+
+        function getRandomCharacterSVG() {
+            const colors = [
+                { main: '#1a1a1a', shadow: '#050505', highlight: '#333' }, // Black Hoodie
+                { main: '#386641', shadow: '#2d5a27', highlight: '#6a994e' }, // Green Hoodie
+                { main: '#004aad', shadow: '#003380', highlight: '#3385ff' }, // Blue Hoodie
+                { main: '#bc4749', shadow: '#a21a1d', highlight: '#eb5e28' }  // Red Hoodie
+            ];
+            const theme = colors[Math.floor(Math.random() * colors.length)];
+            const isWinking = Math.random() > 0.7;
+
+            return `
+                <svg class="pixel-me" viewBox="0 0 64 64">
+                    <!-- Hoodie & Body -->
+                    <rect x="14" y="44" width="36" height="20" fill="${theme.shadow}"/>
+                    <rect x="16" y="42" width="32" height="22" fill="${theme.main}"/>
+                    <rect x="18" y="42" width="4" height="22" fill="${theme.highlight}"/>
+                    <rect x="42" y="42" width="4" height="22" fill="${theme.highlight}"/>
+                    <rect x="29" y="42" width="1" height="12" fill="${theme.highlight}"/>
+                    <rect x="34" y="42" width="1" height="12" fill="${theme.highlight}"/>
+
+                    <!-- Head & Neck -->
+                    <rect x="26" y="36" width="12" height="10" fill="#b9855b"/>
+                    <rect x="28" y="36" width="8" height="8" fill="#d4a373"/>
+                    
+                    <rect x="20" y="10" width="24" height="20" fill="#d4a373"/>
+                    <rect x="22" y="30" width="20" height="6" fill="#d4a373"/>
+                    <rect x="24" y="36" width="16" height="4" fill="#d4a373"/>
+                    
+                    <rect x="22" y="30" width="20" height="6" fill="#b9855b"/>
+                    <rect x="24" y="36" width="16" height="4" fill="#b9855b"/>
+                    
+                    <rect x="22" y="12" width="4" height="15" fill="#fbd2a9"/>
+
+                    <!-- Hair -->
+                    <g fill="#1a1a1a">
+                        <rect x="18" y="8" width="28" height="12"/>
+                        <rect x="22" y="4" width="20" height="16"/>
+                        <rect x="26" y="2" width="12" height="18"/>
+                        <rect x="18" y="12" width="4" height="4" fill="#2a2a2a"/>
+                        <rect x="42" y="12" width="4" height="4" fill="#2a2a2a"/>
+                        <rect x="28" y="2" width="8" height="4" fill="#2a2a2a"/>
+                        <rect x="24" y="18" width="2" height="4"/>
+                        <rect x="38" y="18" width="2" height="4"/>
+                    </g>
+
+                    <!-- MOUTH -->
+                    <rect x="28" y="33" width="8" height="1" fill="#8e5a4e"/>
+                    ${isWinking ? 
+                        `<rect x="27" y="32" width="1" height="1" fill="#8e5a4e"/> 
+                         <rect x="36" y="32" width="1" height="1" fill="#8e5a4e"/>` : '' 
+                    }
+
+                    <!-- GLASSES -->
+                    <rect x="18" y="20" width="12" height="8" fill="#000"/>
+                    <rect x="34" y="20" width="12" height="8" fill="#000"/>
+                    <rect x="30" y="23" width="4" height="2" fill="#000"/>
+                    <rect x="20" y="22" width="8" height="4" fill="rgba(255,255,255,0.1)"/>
+                    <rect x="36" y="22" width="8" height="4" fill="rgba(255,255,255,0.1)"/>
+                    <rect x="21" y="22" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
+                    <rect x="37" y="22" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
+
+                    <!-- Eyes -->
+                    ${isWinking ? 
+                        `<rect x="22" y="24" width="3" height="1" fill="#000"/>
+                         <rect x="38" y="24" width="3" height="1" fill="#000"/>` : 
+                        `<rect x="23" y="24" width="2" height="2" fill="#000"/>
+                         <rect x="39" y="24" width="2" height="2" fill="#000"/>`
+                    }
+
+                    <!-- Ears -->
+                    <rect x="18" y="24" width="2" height="6" fill="#b9855b"/>
+                    <rect x="44" y="24" width="2" height="6" fill="#b9855b"/>
+                </svg>`;
+        }
+
+        const container = document.getElementById('moles-container');
+        for (let i = 0; i < 6; i++) {
+            const hole = document.createElement('div');
+            hole.className = 'hole';
+            const mole = document.createElement('div');
+            mole.className = 'mole';
+            mole.onclick = (e) => whack(mole, e);
+            hole.appendChild(mole);
+            container.appendChild(hole);
+        }
+
+        function nextSection(num) {
+            document.querySelectorAll('.game-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section${num}`).classList.add('active');
+            
+            if (num === 2) startWhackAMole();
+            if (num === 3) createFlower();
+            if (num === 4) initRingGame();
+        }
+
+        const noBtn = document.getElementById('no-btn');
+        const dodge = (e) => {
+            if (e) e.preventDefault();
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+            const x = Math.max(20, Math.min(window.innerWidth - btnWidth - 20, Math.random() * (window.innerWidth - btnWidth)));
+            const y = Math.max(20, Math.min(window.innerHeight - btnHeight - 20, Math.random() * (window.innerHeight - btnHeight)));
+            noBtn.style.position = 'fixed';
+            noBtn.style.zIndex = '1000';
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+            noBtn.style.margin = '0';
+        };
+
+        noBtn.addEventListener('touchstart', dodge, { passive: false });
+        noBtn.addEventListener('pointerdown', dodge);
+        noBtn.addEventListener('mouseover', dodge);
+
+        function startWhackAMole() {
+            currentScore = 0;
+            let timeLeft = 30;
+            document.getElementById('score').innerText = currentScore;
+            document.getElementById('timer').innerText = timeLeft;
+            
+            moleInterval = setInterval(() => {
+                const moles = document.querySelectorAll('.mole');
+                const available = Array.from(moles).filter(m => !m.classList.contains('up') && !m.classList.contains('whacked'));
+                if (available.length > 0) {
+                    const randomMole = available[Math.floor(Math.random() * available.length)];
+                    randomMole.innerHTML = getRandomCharacterSVG();
+                    randomMole.classList.add('up');
+                    setTimeout(() => randomMole.classList.remove('up'), 2500);
+                }
+            }, 1800);
+
+            moleTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(moleInterval);
+                    clearInterval(moleTimer);
+                    if (currentScore < 10) {
+                        alert("Time's up! Let's try again ❤️");
+                        startWhackAMole();
+                    }
+                }
+            }, 1000);
+        }
+
+        function whack(el, event) {
+            if (!el.classList.contains('up') || el.classList.contains('whacked')) return;
+            el.classList.remove('up');
+            el.classList.add('whacked');
+            
+            const clientX = event.clientX || (event.touches ? event.touches[0].clientX : 0);
+            const clientY = event.clientY || (event.touches ? event.touches[0].clientY : 0);
+
+            const hit = document.createElement('div');
+            hit.className = 'hit-effect';
+            hit.innerText = '❤️';
+            hit.style.left = clientX + 'px';
+            hit.style.top = clientY + 'px';
+            document.body.appendChild(hit);
+            setTimeout(() => hit.remove(), 600);
+            
+            setTimeout(() => el.classList.remove('whacked'), 400);
+
+            currentScore++;
+            document.getElementById('score').innerText = currentScore;
+            
+            if (window.navigator.vibrate) window.navigator.vibrate(50);
+
+            if (currentScore >= 10) {
+                clearInterval(moleInterval);
+                clearInterval(moleTimer);
+                setTimeout(() => nextSection(3), 500);
+            }
+        }
+
+        function createFlower() {
+            const container = document.getElementById('flower');
+            container.innerHTML = '<div class="flower-center"><span class="text-2xl">😊</span></div>';
+            const petalCount = 8;
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.transform = `translate(-50%, -100%) rotate(${i * (360 / petalCount)}deg)`;
+                petal.onclick = function() {
+                    this.style.opacity = '0';
+                    this.style.transform += ' translateY(-50px) scale(0.5)';
+                    setTimeout(() => {
+                        this.remove();
+                        checkPetals();
+                    }, 300);
+                };
+                container.appendChild(petal);
+            }
+        }
+
+        function checkPetals() {
+            const remaining = document.querySelectorAll('.petal');
+            if (remaining.length === 0) {
+                document.getElementById('secret-message').style.display = 'block';
+                document.querySelector('.flower-center span').innerText = '❤️';
+                document.querySelector('#section3 h2').style.display = 'none';
+            }
+        }
+
+        function initRingGame() {
+            const ring = document.getElementById('draggable-ring');
+            const target = document.getElementById('ring-target');
+            const area = document.getElementById('hand-area');
+            ring.style.left = '50px';
+            ring.style.top = '300px';
+            let isDragging = false;
+            
+            const onStart = (e) => {
+                isDragging = true;
+                ring.style.cursor = 'grabbing';
+                if (e.cancelable) e.preventDefault();
+            };
+            
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const rect = area.getBoundingClientRect();
+                const x = clientX - rect.left - 30;
+                const y = clientY - rect.top - 30;
+                ring.style.left = x + 'px';
+                ring.style.top = y + 'px';
+                
+                const targetRect = target.getBoundingClientRect();
+                const ringRect = ring.getBoundingClientRect();
+                const distance = Math.hypot((targetRect.left + 20) - (ringRect.left + 30), (targetRect.top + 20) - (ringRect.top + 30));
+                
+                if (distance < 30) {
+                    isDragging = false;
+                    ring.style.left = (targetRect.left - rect.left - 10) + 'px';
+                    ring.style.top = (targetRect.top - rect.top - 10) + 'px';
+                    ring.style.border = '6px solid #ff4d6d';
+                    if (window.navigator.vibrate) window.navigator.vibrate(200);
+                    setTimeout(() => nextSection(5), 1000);
+                }
+            };
+            
+            const onEnd = () => {
+                isDragging = false;
+                ring.style.cursor = 'grab';
+            };
+            
+            ring.addEventListener('mousedown', onStart);
+            ring.addEventListener('touchstart', onStart, { passive: false });
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('mouseup', onEnd);
+            window.addEventListener('touchend', onEnd);
+        }
+    </script>
+</body>
+</html>
