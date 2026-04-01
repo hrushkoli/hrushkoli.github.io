@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Purr-thday!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pastel-pink: #ffd1dc;
+            --pastel-blue: #bde0fe;
+            --pastel-purple: #cdb4db;
+            --pastel-yellow: #fcf6bd;
+            --pastel-green: #d0f4de;
+            --text-dark: #5c4033;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-blue), var(--pastel-purple));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Canvas for Confetti --- */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* --- Screen 1: Intro / Gift --- */
+        #intro-screen {
+            position: absolute;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .gift-box {
+            font-size: 100px;
+            cursor: pointer;
+            animation: wiggle 2s infinite;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+            transition: transform 0.2s;
+        }
+
+        .gift-box:active {
+            transform: scale(0.9);
+        }
+
+        .tap-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-top: 20px;
+            animation: bounceText 1.5s infinite;
+        }
+
+        /* --- Screen 2: Main Content --- */
+        #main-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 20;
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 30px 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            border: 3px solid white;
+        }
+
+        #main-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            text-align: center;
+            background: -webkit-linear-gradient(45deg, #ff9a9e, #fecfef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.05));
+            line-height: 1.2;
+        }
+
+        p.message {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #7a5c61;
+        }
+
+        /* --- Kawaii SVG Cat --- */
+        .cat-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            cursor: pointer;
+            margin: 10px 0;
+            animation: floatCat 3s ease-in-out infinite;
+        }
+
+        .cat-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cat-container:active .cat-svg {
+            transform: scale(0.9) translateY(10px);
+        }
+
+        .cat-eye {
+            transform-origin: center;
+            animation: blink 4s infinite;
+        }
+
+        .click-me-hint {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: #ff9a9e;
+            white-space: nowrap;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* --- Floating Elements (Balloons & Cats) --- */
+        .floating-element {
+            position: absolute;
+            bottom: -100px;
+            font-size: 40px;
+            z-index: 5;
+            animation: floatUp linear infinite;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+        }
+
+        /* --- Generated Hearts --- */
+        .heart {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatHeart 1s ease-out forwards;
+            z-index: 30;
+        }
+
+        /* --- Animations --- */
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(10deg) scale(1.1); }
+            20% { transform: rotate(-10deg) scale(1.1); }
+            30% { transform: rotate(5deg) scale(1.1); }
+            40% { transform: rotate(-5deg) scale(1.1); }
+            50% { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes bounceText {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes floatCat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes blink {
+            0%, 9%, 11%, 100% { transform: scaleY(1); }
+            10% { transform: scaleY(0.1); }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg) translateX(50px); opacity: 0; }
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -150px) scale(1.5); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.8; }
+            50% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+        }
+
+        /* --- Secret Modal --- */
+        #secret-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #secret-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            transform: scale(0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid var(--pastel-pink);
+            max-width: 80%;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        #secret-modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h2 {
+            font-family: 'Fredoka One', cursive;
+            color: #ff9a9e;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            background: var(--pastel-pink);
+            border: none;
+            border-radius: 15px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: #ffb7b2;
+            transform: scale(1.05);
+        }
+        
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Media Queries for Desktop (Mobile First by default) */
+        @media (min-width: 600px) {
+            h1 { font-size: 3.5rem; }
+            p.message { font-size: 1.5rem; }
+            .cat-container { width: 200px; height: 200px; }
+            #main-screen { padding: 50px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Screen 1: Intro -->
+    <div id="intro-screen">
+        <div class="gift-box" onclick="openGift()">🎁</div>
+        <div class="tap-text">Tap to Open!</div>
+    </div>
+
+    <!-- Screen 2: Main Birthday Card -->
+    <div id="main-screen">
+        <h1>Happy Purr-thday!</h1>
+        <p class="message">Wishing you a pawsome day filled with treats and naps! 🐾✨</p>
+        
+        <!-- Interactive Kawaii Cat -->
+        <div class="cat-container" onclick="petCat(event)">
+            <svg class="cat-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Tail -->
+                <path d="M 150 140 Q 180 140 180 100 Q 180 80 160 90" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round"/>
+                <!-- Back Paws -->
+                <circle cx="60" cy="160" r="15" fill="#fff" />
+                <circle cx="140" cy="160" r="15" fill="#fff" />
+                <!-- Body -->
+                <rect x="40" y="60" width="120" height="100" rx="50" fill="#ffffff" />
+                <!-- Ears -->
+                <polygon points="45,80 30,20 80,50" fill="#ffffff"/>
+                <polygon points="155,80 170,20 120,50" fill="#ffffff"/>
+                <!-- Inner Ears -->
+                <polygon points="47,70 38,35 70,55" fill="#ffb7b2"/>
+                <polygon points="153,70 162,35 130,55" fill="#ffb7b2"/>
+                <!-- Head -->
+                <rect x="30" y="40" width="140" height="90" rx="45" fill="#ffffff" />
+                <!-- Eyes -->
+                <circle cx="70" cy="85" r="8" fill="#5c4033" class="cat-eye"/>
+                <circle cx="130" cy="85" r="8" fill="#5c4033" class="cat-eye"/>
+                <!-- Blush -->
+                <ellipse cx="50" cy="95" rx="10" ry="6" fill="#ffb7b2" opacity="0.6"/>
+                <ellipse cx="150" cy="95" rx="10" ry="6" fill="#ffb7b2" opacity="0.6"/>
+                <!-- Nose & Mouth -->
+                <polygon points="95,95 105,95 100,100" fill="#ffb7b2"/>
+                <path d="M 90 105 Q 100 115 100 105 Q 100 115 110 105" fill="none" stroke="#5c4033" stroke-width="3" stroke-linecap="round"/>
+                <!-- Front Paws -->
+                <ellipse cx="80" cy="135" rx="12" ry="15" fill="#f0f0f0" />
+                <ellipse cx="120" cy="135" rx="12" ry="15" fill="#f0f0f0" />
+            </svg>
+            <div class="click-me-hint">Pet me! 💖</div>
+        </div>
+    </div>
+
+    <!-- Container for floating background emojis -->
+    <div id="background-elements"></div>
+
+    <!-- Secret Modal -->
+    <div id="secret-modal">
+        <div class="modal-content">
+            <h2>Secret Unlocked! 😻</h2>
+            <p>Happieee Birthday Sweetiee!!! 🎉💖 You mean so so so much to me, there are no words to describe how much joy and happiness you bring to my life. I am always going to be with you, no matter what. I will be with you for the rest of my life and forever after. </p>
+            <p>You are so adorable, and so precious to me and at the same time you are such a badass fighter. I am so glad to have found you, I never knew someone could be so perfect for me until I found you sweetie.</p>
+            <p>The world feels like it's frozen over whenever I am with you. Every single moment that we spend together, no matter what we are doing, it means the world to me. When I'm with you, all that I think about is how perfect you are in every single way, It never ceases to amaze me how much my love for you keeps growing, no matter how much time we spend together.</p>
+            <p>Happy Birthday sweetie, your second birthday that we'll be spending together, and many more to come hehe. Mwah! 💖 </p>
+            <button class="modal-btn" onclick="closeSecretMessage()">Meow!</button>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let isOpened = false;
+        let petCount = 0;
+
+        // --- DOM Elements ---
+        const introScreen = document.getElementById('intro-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        const bgElements = document.getElementById('background-elements');
+
+        // --- Resize Canvas ---
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // --- Open Gift Function ---
+        function openGift() {
+            if (isOpened) return;
+            isOpened = true;
+
+            // Hide intro
+            introScreen.style.transform = 'scale(0)';
+            introScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                // Show Main Screen
+                mainScreen.classList.add('active');
+                
+                // Start Animations
+                startConfetti();
+                createFloatingElements();
+            }, 400);
+        }
+
+        // --- Interactive Cat (Spawn Hearts) ---
+        function petCat(e) {
+            const numHearts = 5;
+            const rect = e.currentTarget.getBoundingClientRect();
+            
+            // Increment pet counter and show modal every 7 pets
+            petCount++;
+            if (petCount % 7 === 0) {
+                setTimeout(showSecretMessage, 600);
+            }
+
+            for(let i=0; i<numHearts; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '💖';
+                heart.className = 'heart';
+                
+                // Randomize position slightly around the click/touch area
+                const randomX = (Math.random() - 0.5) * 60;
+                const randomY = (Math.random() - 0.5) * 60;
+                
+                // Get exact click position or fallback to center of cat
+                let clientX = e.clientX || rect.left + rect.width / 2;
+                let clientY = e.clientY || rect.top + rect.height / 2;
+
+                heart.style.left = `${clientX + randomX}px`;
+                heart.style.top = `${clientY + randomY}px`;
+                
+                // Randomize animation duration and rotation
+                const duration = 0.8 + Math.random() * 0.5;
+                const rotation = (Math.random() - 0.5) * 60;
+                heart.style.animation = `floatHeart ${duration}s ease-out forwards`;
+                heart.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+
+                document.body.appendChild(heart);
+
+                // Remove after animation
+                setTimeout(() => {
+                    heart.remove();
+                }, duration * 1000);
+            }
+        }
+
+        // --- Floating Background Elements (Balloons & Cats) ---
+        const emojis = ['🎈', '🐱', '🐾', '🌸', '✨', '🐈', '🎁', '🎉'];
+        
+        function createFloatingElements() {
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.className = 'floating-element';
+                el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Random horizontal position
+                el.style.left = `${Math.random() * 100}vw`;
+                
+                // Random size
+                const size = 20 + Math.random() * 30;
+                el.style.fontSize = `${size}px`;
+                
+                // Random animation duration (speed)
+                const duration = 8 + Math.random() * 7;
+                el.style.animationDuration = `${duration}s`;
+                
+                bgElements.appendChild(el);
+                
+                // Clean up DOM
+                setTimeout(() => {
+                    el.remove();
+                }, duration * 1000);
+            }, 800); // Spawn new element every 800ms
+        }
+
+        // --- Confetti Particle System ---
+        let confettiParticles = [];
+        const colors = ['#ffd1dc', '#bde0fe', '#cdb4db', '#fcf6bd', '#d0f4de', '#ffb7b2', '#ffffff'];
+
+        class Confetti {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.w = Math.random() * 10 + 5;
+                this.h = Math.random() * 5 + 5;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 5 - 2.5;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                // Reset position to top if it falls off screen
+                if (this.y > canvas.height) {
+                    this.y = -20;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+                ctx.restore();
+            }
+        }
+
+        function startConfetti() {
+            // Create particles
+            for (let i = 0; i < 100; i++) {
+                confettiParticles.push(new Confetti());
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            confettiParticles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            requestAnimationFrame(animateConfetti);
+        }
+
+        // --- Secret Message Functions ---
+        function showSecretMessage() {
+            document.getElementById('secret-modal').classList.add('active');
+        }
+
+        function closeSecretMessage() {
+            document.getElementById('secret-modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
